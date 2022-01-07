@@ -105,7 +105,7 @@ exports.retrieve = async (req, res) => {
   const client = await dbConnect.run();
 
   try {
-    const { id } = req.body;
+    const { id } = req.params;
 
     if (!ObjectId.isValid(id)) {
       throw new Error("invalid account id!");
@@ -146,13 +146,17 @@ exports.login = async (req, res) => {
       if (!valid) {
         return res.status(400).json({ message: "Wrong Credentials!" });
       } else {
-        const token = jwt.sign({ email, id: result._id }, process.env.JWT_KEY, {
-          expiresIn: 86400,
-        });
+        const token = jwt.sign(
+          { email, account_id: result._id },
+          process.env.JWT_KEY,
+          {
+            expiresIn: 86400,
+          }
+        );
 
         return res.status(200).json({
           email,
-          id: result._id,
+          account_id: result._id,
           token,
         });
       }
@@ -171,11 +175,9 @@ exports.updatePassword = async (req, res) => {
   const client = await dbConnect.run();
 
   try {
-    const { id, current_password, new_password } = req.body;
+    const [_, id, ...rest] = req.headers.authorization.split(" ");
 
-    if (!ObjectId.isValid(id)) {
-      throw new Error("invalid account id!");
-    }
+    const { current_password, new_password } = req.body;
 
     const account = await client
       .db(process.env.DATABASE)
