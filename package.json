@@ -1,5 +1,5 @@
 {
-  "name": "studo",
+  "name": "studo-account-service",
   "version": "1.0.0",
   "description": "A student task scheduler backend API",
   "main": "server.js",
