@@ -94,7 +94,7 @@ exports.update = async (req, res) => {
   } catch (error) {
     // console.log(error);
     return res.status(400).json({
-      message: `Account updated failed`,
+      message: `Account update failed`,
     });
   } finally {
     await client.close();
@@ -137,14 +137,12 @@ exports.login = async (req, res) => {
       throw new Error("Email regex failed!");
     }
 
-    hash = await bcrypt.hash(password, 10);
-
     const result = await client
       .db(process.env.DATABASE)
       .collection(process.env.ACCOUNT_COLLECTION)
       .findOne({ email }, { projection: { _id: 1, password: 1 } });
 
-    bcrypt.compare(password, result.password).then((valid) => {
+    await bcrypt.compare(password, result.password).then((valid) => {
       if (!valid) {
         return res.status(400).json({ message: "Wrong Credentials!" });
       } else {
@@ -160,9 +158,60 @@ exports.login = async (req, res) => {
       }
     });
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     return res.status(400).json({
       message: `Authentication failed`,
+    });
+  } finally {
+    await client.close();
+  }
+};
+
+exports.updatePassword = async (req, res) => {
+  const client = await dbConnect.run();
+
+  try {
+    const { id, current_password, new_password } = req.body;
+
+    if (!ObjectId.isValid(id)) {
+      throw new Error("invalid account id!");
+    }
+
+    const account = await client
+      .db(process.env.DATABASE)
+      .collection(process.env.ACCOUNT_COLLECTION)
+      .findOne({ _id: ObjectId(id) }, { projection: { password: 1 } });
+
+    await bcrypt
+      .compare(current_password, account.password)
+      .then(async (valid) => {
+        if (!valid) {
+          return res
+            .status(400)
+            .json({ message: "Previous Credentials mismatch!" });
+        } else {
+          hash = await bcrypt.hash(new_password, 10);
+          const result = await client
+            .db(process.env.DATABASE)
+            .collection(process.env.ACCOUNT_COLLECTION)
+            .updateOne(
+              { _id: ObjectId(id) },
+              {
+                $set: {
+                  password: hash,
+                },
+              }
+            );
+
+          return res.status(200).json({
+            message: `Credentials updated successfully.`,
+          });
+        }
+      });
+  } catch (error) {
+    // console.log(error);
+    return res.status(400).json({
+      message: `Credentials update failed`,
     });
   } finally {
     await client.close();
