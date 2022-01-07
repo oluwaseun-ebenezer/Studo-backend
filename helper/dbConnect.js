@@ -8,10 +8,10 @@ exports.run = async () => {
 
     await client.db("admin").command({ ping: 1 });
 
-    console.log("Connected successfully to DB server");
+    // console.log("Connected successfully to DB server");
 
     return client;
   } catch {
-    console.log("DB server connection failure");
+    // console.log("DB server connection failure");
   }
 };

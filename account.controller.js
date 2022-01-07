@@ -1,12 +1,13 @@
 const bcrypt = require("bcryptjs");
+const { ObjectId } = require("mongodb");
 const jwt = require("jsonwebtoken");
 
 const dbConnect = require("./helper/dbConnect");
 
 exports.create = async (req, res) => {
-  try {
-    const client = await dbConnect.run();
+  const client = await dbConnect.run();
 
+  try {
     const {
       first_name,
       last_name,
@@ -37,13 +38,52 @@ exports.create = async (req, res) => {
       });
 
     return res.status(201).json({
+      id: result.insertedId,
       message: `${req.body.email} account created successfully.`,
     });
   } catch (error) {
-    console.log(error);
-    return res.status(500).json({
-      status: 0,
+    // console.log(error);
+    return res.status(400).json({
       message: `${req.body.email} account creation failed`,
+    });
+  } finally {
+    await client.close();
+  }
+};
+
+exports.update = async (req, res) => {
+  const client = await dbConnect.run();
+
+  try {
+    const { id, first_name, last_name, department, faculty, level } = req.body;
+
+    if (!ObjectId.isValid(id)) {
+      throw new Error("invalid account id!");
+    }
+
+    const result = await client
+      .db(process.env.DATABASE)
+      .collection(process.env.ACCOUNT_COLLECTION)
+      .updateOne(
+        { _id: ObjectId(id) },
+        {
+          $set: {
+            first_name,
+            last_name,
+            department,
+            faculty,
+            level,
+          },
+        }
+      );
+
+    return res.status(201).json({
+      message: `${req.body.email} account updated successfully.`,
+    });
+  } catch (error) {
+    // console.log(error);
+    return res.status(400).json({
+      message: `${req.body.email} account updated failed`,
     });
   } finally {
     await client.close();
