@@ -24,6 +24,17 @@ exports.create = async (req, res) => {
 
     hash = await bcrypt.hash(password, 10);
 
+    const existing_account = await client
+      .db(process.env.DATABASE)
+      .collection(process.env.ACCOUNT_COLLECTION)
+      .findOne({ email });
+
+    if (existing_account) {
+      return res.status(400).json({
+        message: `${req.body.email} account already exist`,
+      });
+    }
+
     const result = await client
       .db(process.env.DATABASE)
       .collection(process.env.ACCOUNT_COLLECTION)
@@ -110,6 +121,48 @@ exports.retrieve = async (req, res) => {
     // console.log(error);
     return res.status(400).json({
       message: `Account fetch failed`,
+    });
+  } finally {
+    await client.close();
+  }
+};
+
+exports.login = async (req, res) => {
+  const client = await dbConnect.run();
+
+  try {
+    const { email, password } = req.body;
+
+    if (!email.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)) {
+      throw new Error("Email regex failed!");
+    }
+
+    hash = await bcrypt.hash(password, 10);
+
+    const result = await client
+      .db(process.env.DATABASE)
+      .collection(process.env.ACCOUNT_COLLECTION)
+      .findOne({ email }, { projection: { _id: 1, password: 1 } });
+
+    bcrypt.compare(password, result.password).then((valid) => {
+      if (!valid) {
+        return res.status(400).json({ message: "Wrong Credentials!" });
+      } else {
+        const token = jwt.sign({ email, id: result._id }, process.env.JWT_KEY, {
+          expiresIn: 86400,
+        });
+
+        return res.status(200).json({
+          email,
+          id: result._id,
+          token,
+        });
+      }
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({
+      message: `Authentication failed`,
     });
   } finally {
     await client.close();
