@@ -77,13 +77,39 @@ exports.update = async (req, res) => {
         }
       );
 
-    return res.status(201).json({
-      message: `${req.body.email} account updated successfully.`,
+    return res.status(200).json({
+      message: `Account updated successfully.`,
     });
   } catch (error) {
     // console.log(error);
     return res.status(400).json({
-      message: `${req.body.email} account updated failed`,
+      message: `Account updated failed`,
+    });
+  } finally {
+    await client.close();
+  }
+};
+
+exports.retrieve = async (req, res) => {
+  const client = await dbConnect.run();
+
+  try {
+    const { id } = req.body;
+
+    if (!ObjectId.isValid(id)) {
+      throw new Error("invalid account id!");
+    }
+
+    const result = await client
+      .db(process.env.DATABASE)
+      .collection(process.env.ACCOUNT_COLLECTION)
+      .findOne({ _id: ObjectId(id) }, { projection: { password: 0, _id: 0 } });
+
+    return res.status(200).json(result);
+  } catch (error) {
+    // console.log(error);
+    return res.status(400).json({
+      message: `Account fetch failed`,
     });
   } finally {
     await client.close();
