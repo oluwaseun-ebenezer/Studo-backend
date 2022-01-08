@@ -46,6 +46,8 @@ exports.create = async (req, res) => {
         faculty,
         level,
         password: hash,
+        created_at: new Date(),
+        updated_at: new Date(),
       });
 
     return res.status(201).json({
@@ -84,6 +86,7 @@ exports.update = async (req, res) => {
             department,
             faculty,
             level,
+            updated_at: new Date(),
           },
         }
       );
@@ -201,6 +204,7 @@ exports.updatePassword = async (req, res) => {
               {
                 $set: {
                   password: hash,
+                  updated_at: new Date(),
                 },
               }
             );

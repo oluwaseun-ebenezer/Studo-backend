@@ -34,6 +34,8 @@ exports.create = async (req, res) => {
         tracker,
         on_screen,
         time_frame,
+        created_at: new Date(),
+        updated_at: new Date(),
       });
 
     return res.status(201).json({
@@ -88,6 +90,7 @@ exports.update = async (req, res) => {
             reminder,
             on_screen,
             time_frame,
+            updated_at: new Date(),
           },
           $inc: {
             tracker: tracker,
