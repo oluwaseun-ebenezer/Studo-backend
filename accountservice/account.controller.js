@@ -89,7 +89,7 @@ exports.update = async (req, res) => {
       );
 
     return res.status(200).json({
-      message: `Account updated successfully.`,
+      message: `${result.modifiedCount} Account updated successfully.`,
     });
   } catch (error) {
     // console.log(error);
@@ -206,7 +206,7 @@ exports.updatePassword = async (req, res) => {
             );
 
           return res.status(200).json({
-            message: `Credentials updated successfully.`,
+            message: `${result.modifiedCount} Credentials updated successfully.`,
           });
         }
       });
