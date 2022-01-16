@@ -1,7 +1,7 @@
 {
-  "name": "studo-task-service",
+  "name": "studo-backend-service",
   "version": "1.0.0",
-  "description": "Task service for student task scheduler",
+  "description": "Backend API for student task scheduler",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
