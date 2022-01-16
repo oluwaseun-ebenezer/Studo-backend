@@ -1,6 +1,6 @@
 const { ObjectId } = require("mongodb");
 
-const dbConnect = require("./helper/dbConnect");
+const dbConnect = require("../middlewares/dbConnect");
 
 exports.create = async (req, res) => {
   const client = await dbConnect.run();

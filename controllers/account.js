@@ -2,7 +2,7 @@ const bcrypt = require("bcryptjs");
 const { ObjectId } = require("mongodb");
 const jwt = require("jsonwebtoken");
 
-const dbConnect = require("./helper/dbConnect");
+const dbConnect = require("../middlewares/dbConnect");
 
 exports.create = async (req, res) => {
   const client = await dbConnect.run();

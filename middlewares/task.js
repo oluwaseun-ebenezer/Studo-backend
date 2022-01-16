@@ -1,5 +1,5 @@
 const { ObjectId } = require("mongodb");
-const dbConnect = require("./helper/dbConnect");
+const dbConnect = require("../middlewares/dbConnect");
 
 exports.taskPayloadValidation = (req, res, next) => {
   const {

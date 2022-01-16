@@ -1,7 +1,7 @@
 const { ObjectId } = require("mongodb");
 const jwt = require("jsonwebtoken");
 
-const dbConnect = require("./helper/dbConnect");
+const dbConnect = require("./dbConnect");
 
 module.exports = async (req, res, next) => {
   const client = await dbConnect.run();

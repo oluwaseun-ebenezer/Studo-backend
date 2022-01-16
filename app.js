@@ -1,7 +1,9 @@
 const express = require("express");
 require("dotenv").config();
 
-const tagRoute = require("./tag.route");
+const taskRoute = require("./routes/task");
+const tagRoute = require("./routes/tag");
+const accountRoute = require("./routes/account");
 
 const app = express();
 
@@ -21,7 +23,9 @@ app.use((req, res, next) => {
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
+app.use("/task", taskRoute);
 app.use("/tag", tagRoute);
+app.use("/account", accountRoute);
 
 app.head("/", (req, res) => {
   return res.status(200).json();
